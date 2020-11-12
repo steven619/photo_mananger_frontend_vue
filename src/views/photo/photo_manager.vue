@@ -1,9 +1,19 @@
 <template>
   <el-row style="margin: 25px">
-    <el-button @click="searchPhoto">
-      搜索
-    </el-button>
     <el-row>
+      <el-input
+        v-model="keywords"
+        style="width: 200px"
+        placeholder="请输入图片名称"
+      />
+      <el-button
+        style="float: right"
+        @click="searchPhoto"
+      >
+        刷新
+      </el-button>
+    </el-row>
+    <el-row style="margin-top: 10px">
       <el-upload
         action="/api/v1/features/photo_up"
         list-type="picture-card"
@@ -19,6 +29,7 @@
     </el-row>
 
     <el-dialog :visible.sync="dialogVisible">
+      <span>{{ dialogImageName }}</span>
       <img
         width="100%"
         :src="dialogImageUrl"
@@ -32,7 +43,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import Photo from '@/api/photo/photo.ts'
 import { getToken } from '@/utils/auth'
-
 @Component({
   name: 'PhotoManager',
   components: {
@@ -45,15 +55,17 @@ export default class extends Vue {
     jwt: getToken()
   }
   fileList:any[] = []
+  keywords:string = ''
 
   mounted() {
     this.searchPhoto()
   }
 
   dialogImageUrl:string = ''
+  dialogImageName:string = ''
   dialogVisible:boolean = false
 
-  handleRemove(file, fileList) {
+  handleRemove(file:any, fileList:any) {
     console.log('remove', file)
     this.photo.deletePhoto(file.ID).then((res:any) => {
       this.$message.success('删除成功')
@@ -61,8 +73,7 @@ export default class extends Vue {
   }
 
   searchPhoto() {
-    this.photo.getAllPhoto().then((res:any) => {
-      console.log(3333, res)
+    this.photo.getMyPhoto().then((res:any) => {
       this.fileList = res
     })
   }
@@ -71,12 +82,13 @@ export default class extends Vue {
     console.log(11111, response, file, fileList)
   }
 
-  onError(err:any, file:any, fileList:any) {
+  onError(ERR:any, file:any, fileList:any) {
     console.log('error')
   }
 
-  handlePictureCardPreview(file) {
+  handlePictureCardPreview(file:any) {
     this.dialogImageUrl = file.url
+    this.dialogImageName = file.name
     this.dialogVisible = true
   }
 }

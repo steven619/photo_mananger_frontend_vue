@@ -62,7 +62,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           apis: ['/api/v1/photo/photo_view'],
           title: 'photo_view',
-          icon: 'photo_view',
+          icon: 'photo',
           roles: [] }
       },
       {
@@ -72,7 +72,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           apis: ['/api/v1/photo/photo_manager'],
           title: 'photo_manager',
-          icon: 'photo_manager',
+          icon: 'photo',
           roles: [] }
       }
     ]

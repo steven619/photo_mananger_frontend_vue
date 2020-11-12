@@ -1,6 +1,11 @@
 <template>
   <div class="dashboard-container">
-    <h3>你好{{username}}!</h3>
+    <h3 class="btn">
+      你好{{ username }}!
+    </h3>
+    <h2>
+      欢迎使用本系统
+    </h2>
   </div>
 </template>
 
@@ -15,7 +20,6 @@ import request from '@/utils/request'
     }
   })
 export default class extends Vue {
-
   username:string = ''
   mounted() {
     this.getUerInfo()

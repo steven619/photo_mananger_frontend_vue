@@ -8,6 +8,19 @@ export default class Photo {
       params: params
     })
   }
+  getMyPhoto(params?:any) {
+    return request({
+      url: `/features/my_photo`,
+      method: 'get',
+      params: params
+    })
+  }
+  getOnePhont(id:string) {
+    return request({
+      url: `/features/photo_share/${id}`,
+      method: 'get'
+    })
+  }
 
   deletePhoto(id:string) {
     return request({
