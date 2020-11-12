@@ -1,13 +1,9 @@
 <template>
   <el-row style="margin: 25px">
     <el-row>
-      <el-input
-        v-model="keywords"
-        style="width: 200px"
-        placeholder="请输入图片名称"
-      />
       <el-button
-        style="float: right"
+        style="margin-left: 50%"
+        type="success"
         @click="searchPhoto"
       >
         刷新
@@ -29,7 +25,9 @@
     </el-row>
 
     <el-dialog :visible.sync="dialogVisible">
-      <span>{{ dialogImageName }}</span>
+      <span style="size: B4">照片名称:{{ dialogImageName }}</span>
+      <span style="size: B4;margin-left: 15px">照片上传时间:{{ dialogImageDate }}</span>
+      <span style="size: B4 ;margin-left: 15px">照片上传IP:{{ dialogImageIp }}</span>
       <img
         width="100%"
         :src="dialogImageUrl"
@@ -90,6 +88,8 @@ export default class extends Vue {
     this.dialogImageUrl = file.url
     this.dialogImageName = file.name
     this.dialogVisible = true
+    this.dialogImageIp = file.ip
+    this.dialogImageDate = file.date
   }
 }
 </script>

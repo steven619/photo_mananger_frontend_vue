@@ -1,8 +1,21 @@
 <template>
   <el-row style="margin: 25px">
-    <el-button @click="searchPhoto">
-      搜索
-    </el-button>
+    <el-row>
+      <el-date-picker
+        v-model="date"
+        style="float: left "
+        type="date"
+        placeholder="选择日期">
+      </el-date-picker>
+      <el-input style="width: 280px;margin-left: 40px" v-model="photoname" placeholder="请输入图片名称"></el-input>
+      <el-button
+        style="margin-left: 50px"
+        type="success"
+        @click="searchPhoto"
+      >
+        搜索
+      </el-button>
+    </el-row>
     <el-row>
       <el-row style="display: flex;flex-wrap: wrap;">
         <el-card
@@ -90,6 +103,8 @@ import { getToken } from '@/utils/auth'
 })
 
 export default class extends Vue {
+  photoname:string=''
+  date:string=''
   outerVisible:boolean=false
   innerVisible:boolean=false
   gridData:[] = []
