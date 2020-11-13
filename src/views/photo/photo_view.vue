@@ -3,11 +3,16 @@
     <el-row>
       <el-date-picker
         v-model="date"
-        style="float: left "
-        type="date"
-        placeholder="选择日期">
-      </el-date-picker>
-      <el-input style="width: 280px;margin-left: 40px" v-model="photoname" placeholder="请输入图片名称"></el-input>
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      />
+      <el-input
+        v-model="photoname"
+        style="width: 280px;margin-left: 40px"
+        placeholder="请输入图片名称"
+      />
       <el-button
         style="margin-left: 50px"
         type="success"
@@ -32,36 +37,10 @@
             <el-button
               style="float: right; padding: 3px 0"
               type="primary"
-              @click="getComment"
+              @click="getComment(item)"
             >
               查看评价
             </el-button>
-            <el-dialog title="评论详情" :visible.sync="outerVisible">
-              <el-table :data="gridData">
-                <el-table-column property="username" label="用户名" width="80"></el-table-column>
-                <el-table-column property="date" label="时间" width="100"></el-table-column>
-                <el-table-column property="ip" label="ip地址"></el-table-column>
-                <el-table-column property="txt" label="评论内容"></el-table-column>
-              </el-table>
-              <el-dialog
-                width="30%"
-                title="评论详情"
-                :visible.sync="innerVisible"
-                append-to-body>
-                <el-input
-                  type="textarea"
-                  :rows="2"
-                  placeholder="请输入评论内容内容"
-                  v-model="txt">
-                </el-input>
-                <el-button @click="innerVisible = false">取 消</el-button>
-                <el-button type="primary" @click="addComment">添加评论</el-button>
-              </el-dialog>
-              <div slot="footer" class="dialog-footer">
-                <el-button @click="outerVisible = false">取 消</el-button>
-                <el-button type="primary" @click="innerVisible = true">添加评论</el-button>
-              </div>
-            </el-dialog>
             <el-button
               type="danger"
               style="float: right; padding: 3px 0;margin-right: 3px;"
@@ -79,6 +58,68 @@
           />
         </el-card>
       </el-row>
+
+      <el-dialog
+        title="评论详情"
+        :visible.sync="outerVisible"
+      >
+        <el-table :data="gridData">
+          <el-table-column
+            property="username"
+            label="用户名"
+            width="80"
+          />
+          <el-table-column
+            property="date"
+            label="时间"
+            width="100"
+          />
+          <el-table-column
+            property="ip"
+            label="ip地址"
+          />
+          <el-table-column
+            property="txt"
+            label="评论内容"
+          />
+        </el-table>
+        <el-dialog
+          width="30%"
+          title="评论详情"
+          :visible.sync="innerVisible"
+          append-to-body
+        >
+          <el-input
+            v-model="txt"
+            type="textarea"
+            :rows="2"
+            placeholder="请输入评论内容内容"
+          />
+          <el-button @click="innerVisible = false">
+            取 消
+          </el-button>
+          <el-button
+            type="primary"
+            @click="addComment"
+          >
+            添加评论
+          </el-button>
+        </el-dialog>
+        <div
+          slot="footer"
+          class="dialog-footer"
+        >
+          <el-button @click="outerVisible = false">
+            取 消
+          </el-button>
+          <el-button
+            type="primary"
+            @click="innerVisible = true"
+          >
+            添加评论
+          </el-button>
+        </div>
+      </el-dialog>
     </el-row>
 
     <el-dialog :visible.sync="dialogVisible">
@@ -94,6 +135,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import Photo from '@/api/photo/photo.ts'
+import Comment from '@/api/comment/comment.ts'
 import { getToken } from '@/utils/auth'
 
 @Component({
@@ -104,12 +146,14 @@ import { getToken } from '@/utils/auth'
 
 export default class extends Vue {
   photoname:string=''
-  date:string=''
+  date:any={}
   outerVisible:boolean=false
   innerVisible:boolean=false
   gridData:[] = []
   txt:string=''
   photo = new Photo()
+  tempPhoto:any = {}
+  comment = new Comment()
   headers:any = {
     jwt: getToken()
   }
@@ -118,17 +162,22 @@ export default class extends Vue {
   mounted() {
     this.searchPhoto()
   }
-  addComment(file:any) {
+  addComment() {
     this.innerVisible = false
-    this.comment.addComment(file.ID).then((res:any) => {
+    console.log(this.tempPhoto, 77777)
+    let d = {
+      txt: this.txt
+    }
+    this.comment.addComment(this.tempPhoto.ID, d).then((res:any) => {
       console.log(666666, res)
     })
   }
   getComment(file:any) {
     this.outerVisible = true
+    this.tempPhoto = file
     this.comment.getComment(file.ID).then((res:any) => {
       console.log(4444, res)
-      res = this.gridData
+      this.gridData = res.data
     })
   }
   sharePic(file:any) {
@@ -139,9 +188,16 @@ export default class extends Vue {
         inputValue: res,
         cancelButtonText: '取消'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '去分享吧'
+        this.$copyText(res).then(e => {
+          this.$message({
+            type: 'success',
+            message: '复制成功,去分享吧'
+          })
+          console.log(e)
+        }, (e:any) => {
+          this.$message({
+            message: '复制失败'
+          })
         })
       }).catch(() => {
         this.$message({
@@ -163,7 +219,13 @@ export default class extends Vue {
   }
 
   searchPhoto() {
-    this.photo.getAllPhoto().then((res:any) => {
+    let d = {
+      keywords: this.photoname,
+      start: this.date[0],
+      end: this.date[1]
+    }
+    console.log(111, d)
+    this.photo.getAllPhoto(d).then((res:any) => {
       console.log(3333, res)
       this.fileList = res
     })

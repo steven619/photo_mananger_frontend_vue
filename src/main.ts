@@ -37,6 +37,10 @@ import Viewer from 'v-viewer'
 import 'viewerjs/dist/viewer.css'
 
 import tools from '@/utils/tools.ts'
+
+import VueClipboard from 'vue-clipboard2'
+
+Vue.use(VueClipboard)
 Vue.prototype.$tools = tools
 
 Vue.use(Viewer)
