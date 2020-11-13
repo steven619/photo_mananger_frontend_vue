@@ -84,6 +84,8 @@ export default class extends Vue {
     console.log('error')
   }
 
+  dialogImageDate:string = ''
+  dialogImageIp:string = ''
   handlePictureCardPreview(file:any) {
     this.dialogImageUrl = file.url
     this.dialogImageName = file.name
